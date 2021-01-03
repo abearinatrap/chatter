@@ -52,13 +52,22 @@ guiq=queue.Queue()
 
 class MyClient(discord.Client):
     async def on_ready(self):
-        guiq.put({"title":"{0}".format(self.user)})
+        self.serverList=[]
+        self.guildList=[]
+        self.ownName="{0}".format(self.user)
+        guiq.put({"title":self.ownName})
         for guild in self.guilds:
-            print(guild.name)
+            serverList.append(guild)
+            for channel in guild.channels:
+                if channel.type.name=="text":
+                    self.guildList.append(channel)
 
     async def on_message(self, message):
+        global ownName
         #print('Message from {0.author}: {0.content}'.format(message))
-        guiq.put({"chid":"{0.guild}-{1.channel}".format(message,message),"author":"{0.author}".format(message),"message":"{0.content}".format(message)})
+        if "{0.author}".format(message)!=self.ownName:
+            guiq.put({"chid":"{0.guild}-{1.channel}".format(message,message),"author":"{0.author}".format(message),"message":"{0.content}".format(message)})
+            await message.channel.send('👀')
 #simulated actual messages
 async def makeItem():
     while True:
